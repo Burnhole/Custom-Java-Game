@@ -2,13 +2,10 @@ package dcman58.DcmanEngine;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
+
+import dcman58.DcmanEngine.Graphics.DisplayManager;
 
 public class Main implements Runnable {
-	
-	//Resolution Stuff
-	boolean isFullscreen = false;
-	
 	//Running Stuff
 	public Thread thread;
 	public boolean running = false;
@@ -27,9 +24,9 @@ public class Main implements Runnable {
 
 	public void run() {
 		try {
-			Display.setDisplayMode(new DisplayMode(width, height));
+			//			Display.setDisplayMode(new DisplayMode(width, height));
+			new DisplayManager().setDisplayMode(width, height, new Input().isFullscreen);
 			Display.setTitle(title);
-			Display.setFullscreen(isFullscreen);
 			Display.create();
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -37,6 +34,14 @@ public class Main implements Runnable {
 		}
 
 		while (running) {
+			if(new Input().isFullscreen){
+				try {
+					Display.setFullscreen(new Input().isFullscreen);
+				} catch (LWJGLException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			input.pollInput();
 			Display.update();
 			if (Display.isCloseRequested())
@@ -44,16 +49,6 @@ public class Main implements Runnable {
 		}
 		Display.destroy();
 
-	}
-	
-	public void ObtainDisplayRatio() throws LWJGLException{
-		DisplayMode[] modes = Display.getAvailableDisplayModes();
-
-		for (int i=0;i<modes.length;i++) {
-		    DisplayMode current = modes[i];
-		    System.out.println(current.getWidth() + "x" + current.getHeight() + "x" +
-		                        current.getBitsPerPixel() + " " + current.getFrequency() + "Hz");
-		}
 	}
 
 	public static void main(String[] args) {
